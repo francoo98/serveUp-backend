@@ -64,7 +64,7 @@ class UMCloudProvider extends CloudProvider {
             const res = await axios.post('http://nova.openstack.svc.metal.kube.um.edu.ar/v2.1/82e080d7e97f4cfb858eb766b25a9bd6/servers',
             {
                 "server": {
-                    "name": "auto-allocate-network",
+                    "name": "server",
                     "imageRef": "b6c2998a-006f-4c7d-a62f-0062891e408e",
                     "flavorRef": "2d357d3d-32c1-4af8-81dd-a71a7d7cf303",
                     "networks" : [{
