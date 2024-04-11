@@ -12,7 +12,9 @@ app.get('/api/server/', (req, res) => {
 })
 
 app.post('/api/server/', (req, res) => {
-    res.send('Got a POST request')
+    cloudProvider.createServer().then(server => {
+        res.send(server)
+    })
 })
 
 app.listen(port, () => {
