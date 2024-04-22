@@ -15,10 +15,10 @@ app.get('/api/server/', (req, res) => {
         let service = {}
         resK8s.body.items.forEach((item, i) => {
             service.name = item.metadata.name
-            if(item.spec.type = "ClusterIP") {
+            if(item.spec.type === "ClusterIP") {
                 service.ip = item.spec.clusterIP
             }
-            else if(item.spec.type = "LoadBalancer") {
+            else if(item.spec.type === "LoadBalancer") {
                 service.ip = item.status.loadBalancer.ingress[0].ip
             }
             service.port = item.spec.ports[0].port;
