@@ -1,20 +1,40 @@
 const express = require('express')
-const cloudProviders = require('./cloudProvider')
+const k8s = require('@kubernetes/client-node');
 
 const app = express()
 const port = 3000
-const cloudProvider = new cloudProviders.UMCloudProvider()
+
+const kc = new k8s.KubeConfig();
+kc.loadFromDefault();
+const k8sAppsApi = kc.makeApiClient(k8s.CoreV1Api);
 
 app.get('/api/server/', (req, res) => {
-    cloudProvider.getServers().then(servers => {
-        res.send(servers)
+    k8sAppsApi.listNamespacedService('default')
+    .then((resK8s) => {
+        let services = []
+        let service = {}
+        resK8s.body.items.forEach((item, i) => {
+            service.name = item.metadata.name
+            if(item.spec.type = "ClusterIP") {
+                service.ip = item.spec.clusterIP
+            }
+            else if(item.spec.type = "LoadBalancer") {
+                service.ip = item.status.loadBalancer.ingress[0].ip
+            }
+            service.port = item.spec.ports[0].port;
+            services.push(service)
+        })
+        res.send(services)
     })
+    .catch((err) => {
+        console.error('Error:', err);
+    });
 })
 
 app.post('/api/server/', (req, res) => {
-    cloudProvider.createServer().then(server => {
+    /*cloudProvider.createServer().then(server => {
         res.send(server)
-    })
+    })*/
 })
 
 app.listen(port, () => {

@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/francoo98/servers#readme",
   "dependencies": {
+    "@kubernetes/client-node": "^0.20.0",
     "axios": "^1.6.8",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
