@@ -12,8 +12,8 @@ app.get('/api/server/', (req, res) => {
     k8sAppsApi.listNamespacedService('default')
     .then((resK8s) => {
         let services = []
-        let service = {}
         resK8s.body.items.forEach((item, i) => {
+            let service = {}
             service.name = item.metadata.name
             if(item.spec.type === "ClusterIP") {
                 service.ip = item.spec.clusterIP
