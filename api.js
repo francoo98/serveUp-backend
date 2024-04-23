@@ -27,7 +27,8 @@ app.get('/api/server/', (req, res) => {
         res.send(services)
     })
     .catch((err) => {
-        console.error('Error:', err);
+        console.error('Error:', err)
+        res.send(err)
     });
 })
 
