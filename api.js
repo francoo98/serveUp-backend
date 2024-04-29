@@ -1,13 +1,13 @@
 const express = require('express')
-const k8s = require('@kubernetes/client-node');
+const k8s = require('@kubernetes/client-node')
 
 const app = express()
 const port = 3000
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
-const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api);
+const kc = new k8s.KubeConfig()
+kc.loadFromDefault()
+const k8sApi = kc.makeApiClient(k8s.CoreV1Api)
+const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
 
 app.get('/api/server/', (req, res) => {
     k8sApi.listNamespacedService('default')
@@ -22,7 +22,7 @@ app.get('/api/server/', (req, res) => {
                 else if(item.spec.type === "LoadBalancer") {
                     service.ip = item.status.loadBalancer.ingress[0].ip
                 }
-                service.port = item.spec.ports[0].port;
+                service.port = item.spec.ports[0].port
                 services.push(service)
             })
             res.send(services)
@@ -30,7 +30,7 @@ app.get('/api/server/', (req, res) => {
         .catch((err) => {
             console.error('Error:', err)
             res.send(err)
-        });
+        })
 })
 
 app.post('/api/server/', async (req, res) => {
