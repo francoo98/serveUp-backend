@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21.0.2_13-jre
+FROM eclipse-temurin:21
 
 RUN adduser minecraft
 RUN su - minecraft
