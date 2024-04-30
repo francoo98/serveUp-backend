@@ -41,7 +41,7 @@ app.get('/api/server/', (req, res) => {
 })
 
 app.post('/api/server/', async (req, res) => {
-    const deployment = {
+    const deploymentDefinition = {
         apiVersion: 'apps/v1',
         kind: 'Deployment',
         metadata: {
@@ -74,7 +74,7 @@ app.post('/api/server/', async (req, res) => {
         },
     }
 
-    const service = {
+    const serviceDefinition = {
         kind: "Service",
         apiVersion: "v1",
         metadata: {
@@ -94,8 +94,8 @@ app.post('/api/server/', async (req, res) => {
     }
 
     try {
-        const createService = await k8sApi.createNamespacedService('default', service)
-        const createDeployment = await k8sAppsApi.createNamespacedDeployment('default', deployment)
+        const createService = await k8sApi.createNamespacedService('default', serviceDefinition)
+        const createDeployment = await k8sAppsApi.createNamespacedDeployment('default', deploymentDefinition)
         //console.log(createService.body.status.loadBalancer)
         // Por defecto, algunos kube-proxy y servicios solo llenarán 'status.loadBalancer.ingress[0].ip', otros llenarán 'status.loadBalancer.ingress[0].hostname'.
         const ip = createService.body.status.loadBalancer.ingress[0].ip || createService.status.loadBalancer.ingress[0].hostname
