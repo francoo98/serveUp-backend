@@ -1,0 +1,9 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    namespace: default
+    name: serveupapi
+rules:
+- apiGroups: ["", "apps"]
+  resources: ["services", "deployments"]
+  verbs: ["get", "watch", "list", "create"]

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serveupapi
+  labels:
+    app: serveupapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: serveupapi
+  template:
+    metadata:
+      labels:
+        app: serveupapi
+    spec:
+      serviceAccountName: serveupapi
+      containers:
+      - name: serveupapi
+        image: serveupapi
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000

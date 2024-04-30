@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: serveupapi
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: serveupapi
+  namespace: default
+roleRef:
+  kind: Role
+  name: serveupapi
+  apiGroup: rbac.authorization.k8s.io
