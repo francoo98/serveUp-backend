@@ -1,5 +1,6 @@
 const express = require('express')
 const k8s = require('@kubernetes/client-node')
+const cors = require('cors')
 
 const app = express()
 const port = 3000
@@ -8,6 +9,12 @@ const kc = new k8s.KubeConfig()
 kc.loadFromDefault()
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api)
 const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
+
+const allowedOrigins = {
+    origin: 'http://localhost:3000'
+}
+app.use(cors(allowedOrigins))
+
 
 app.get('/api/server/', (req, res) => {
     k8sApi.listNamespacedService('default')
