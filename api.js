@@ -27,7 +27,7 @@ app.get('/api/server/', (req, res) => {
                     service.ip = item.spec.clusterIP
                 }
                 else if(item.spec.type === "LoadBalancer") {
-                    service.ip = item.status.loadBalancer.ingress[0].ip
+                    service.ip = item.status.loadBalancer.ingress[0].hostname
                 }
                 service.port = item.spec.ports[0].port
                 services.push(service)
@@ -98,7 +98,7 @@ app.post('/api/server/', async (req, res) => {
         const createDeployment = await k8sAppsApi.createNamespacedDeployment('default', deploymentDefinition)
         //console.log(createService.body.status.loadBalancer)
         // Por defecto, algunos kube-proxy y servicios solo llenarán 'status.loadBalancer.ingress[0].ip', otros llenarán 'status.loadBalancer.ingress[0].hostname'.
-        const ip = createService.body.status.loadBalancer.ingress[0].ip || createService.status.loadBalancer.ingress[0].hostname
+        const ip = createService.status.loadBalancer.ingress[0].hostname
         res.json({ ip })
 
     } catch (error) {
