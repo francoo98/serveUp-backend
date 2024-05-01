@@ -96,8 +96,12 @@ app.post('/api/server/', async (req, res) => {
     try {
         const createService = await k8sApi.createNamespacedService('default', serviceDefinition)
         const createDeployment = await k8sAppsApi.createNamespacedDeployment('default', deploymentDefinition)
-        const ip = createService.status.loadBalancer.ingress[0].hostname
-        res.json({ ip })
+        const service = await k8sApi.readNamespacedService('minecraft-service', 'default')
+        const ip = service.body.status.loadBalancer.ingress[0].hostname
+        res.json({ 
+                    'ip': service.body.status.loadBalancer.ingress[0].hostname,
+                    'port': service.body.spec.ports[0].port
+                })
 
     } catch (error) {
         console.error(error)
