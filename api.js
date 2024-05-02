@@ -124,7 +124,6 @@ async function getService() {
     catch {
         return getService()
     }
-
 }
 
 function sleep(milliseconds) {
