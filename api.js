@@ -96,8 +96,9 @@ app.post('/api/server/', async (req, res) => {
     try {
         await k8sApi.createNamespacedService('default', serviceDefinition)
         await k8sAppsApi.createNamespacedDeployment('default', deploymentDefinition)
-        const service = await k8sApi.readNamespacedService('minecraft-service', 'default')
+        const service = await getService()
         res.json({ 
+                    "name": service.body.metadata.name,
                     'ip': service.body.status.loadBalancer.ingress[0].hostname,
                     'port': service.body.spec.ports[0].port
                 })
@@ -111,6 +112,20 @@ app.post('/api/server/', async (req, res) => {
 app.listen(port, () => {
     console.log(`App listening on port ${port}`)
 })
+
+async function getService() {
+    // This function is needed because ingress is not initialize everytime you get the service
+    // So we need to retry until we get the ingress
+    try {
+        const service = await k8sApi.readNamespacedService('minecraft-service', 'default')
+        service.body.status.loadBalancer.ingress[0]
+        return service
+    }
+    catch {
+        return getService()
+    }
+
+}
 
 function sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
