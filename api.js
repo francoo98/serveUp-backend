@@ -45,7 +45,7 @@ app.post('/api/server/', async (req, res) => {
         apiVersion: 'apps/v1',
         kind: 'Deployment',
         metadata: {
-            name: 'minecraft-deployment',
+            name: 'minecraft-deployment-' + generateRandomString()
         },
         spec: {
             replicas: 1,
@@ -74,11 +74,12 @@ app.post('/api/server/', async (req, res) => {
         },
     }
 
+    const serviceName = "minecraft-service-" + generateRandomString()
     const serviceDefinition = {
         kind: "Service",
         apiVersion: "v1",
         metadata: {
-            name: "minecraft-service",
+            name: serviceName,
         },
         spec: {
             selector: {
@@ -96,7 +97,7 @@ app.post('/api/server/', async (req, res) => {
     try {
         await k8sApi.createNamespacedService('default', serviceDefinition)
         await k8sAppsApi.createNamespacedDeployment('default', deploymentDefinition)
-        const service = await getService()
+        const service = await getService(serviceName)
         res.json({ 
                     "name": service.body.metadata.name,
                     'ip': service.body.status.loadBalancer.ingress[0].hostname,
@@ -128,4 +129,8 @@ async function getService() {
 
 function sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+
+function generateRandomString() {
+    return Math.random().toString(36).substring(2, 6)
 }
