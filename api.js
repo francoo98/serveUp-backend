@@ -114,16 +114,22 @@ app.listen(port, () => {
     console.log(`App listening on port ${port}`)
 })
 
-async function getService() {
+async function getService(serviceName, recursionCount = 0) {
     // This function is needed because ingress is not initialize everytime you get the service
     // So we need to retry until we get the ingress
+    recursionCount++
     try {
-        const service = await k8sApi.readNamespacedService('minecraft-service', 'default')
+        const service = await k8sApi.readNamespacedService(serviceName, 'default')
         service.body.status.loadBalancer.ingress[0]
         return service
     }
     catch {
-        return getService()
+        if(recursionCount < 50) {
+            return getService(serviceName, recursionCount)
+        }
+        else {
+            return -1
+        }
     }
 }
 
