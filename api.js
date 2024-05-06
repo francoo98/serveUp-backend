@@ -98,7 +98,7 @@ app.post('/api/server/', async (req, res) => {
         await k8sApi.createNamespacedService('default', serviceDefinition)
         await k8sAppsApi.createNamespacedDeployment('default', deploymentDefinition)
         const service = await getService(serviceName)
-        res.json({ 
+        res.status(201).json({ 
                     "name": service.body.metadata.name,
                     'ip': service.body.status.loadBalancer.ingress[0].hostname,
                     'port': service.body.spec.ports[0].port
