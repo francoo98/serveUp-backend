@@ -21,6 +21,12 @@ app.use(cookieParser('nose'))
 const users = ["franco", "tomi"]
 
 app.get('/api/server/', (req, res) => {
+
+    if(!req.cookies.user || !users.includes(req.cookies.user)) {
+        res.status(401).send()
+        return
+    }
+
     k8sApi.listNamespacedService('default')
         .then((resK8s) => {
             let services = []
