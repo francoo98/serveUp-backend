@@ -27,7 +27,7 @@ app.get('/api/server/', (req, res) => {
         return
     }
 
-    k8sApi.listNamespacedService('default')
+    k8sApi.listNamespacedService("user-"+req.cookies.user)
         .then((resK8s) => {
             let services = []
             resK8s.body.items.forEach((item, i) => {

@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: service-role-franco-binding
+  namespace: user-franco
+subjects:
+- kind: ServiceAccount
+  name: serveupapi
+  namespace: default
+roleRef:
+  kind: Role
+  name: service-role-franco
+  apiGroup: rbac.authorization.k8s.io
