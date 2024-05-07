@@ -1,6 +1,7 @@
 const express = require('express')
 const k8s = require('@kubernetes/client-node')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
 const app = express()
 const port = 3000
@@ -15,6 +16,9 @@ const allowedOrigins = {
 }
 app.use(cors(allowedOrigins))
 
+app.use(cookieParser('nose'))
+
+const users = ["franco", "tomi"]
 
 app.get('/api/server/', (req, res) => {
     k8sApi.listNamespacedService('default')
