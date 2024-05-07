@@ -18,7 +18,7 @@ app.use(cors(allowedOrigins))
 
 app.use(cookieParser('nose'))
 
-const users = ["franco", "tomi"]
+const users = ['franco', 'tomi']
 
 app.get('/api/server/', (req, res) => {
 
@@ -27,16 +27,16 @@ app.get('/api/server/', (req, res) => {
         return
     }
 
-    k8sApi.listNamespacedService("user-"+req.cookies.user)
+    k8sApi.listNamespacedService('user-'+req.cookies.user)
         .then((resK8s) => {
             let services = []
             resK8s.body.items.forEach((item, i) => {
                 let service = {}
                 service.name = item.metadata.name
-                if(item.spec.type === "ClusterIP") {
+                if(item.spec.type === 'ClusterIP') {
                     service.ip = item.spec.clusterIP
                 }
-                else if(item.spec.type === "LoadBalancer") {
+                else if(item.spec.type === 'LoadBalancer') {
                     service.ip = item.status.loadBalancer.ingress[0].hostname
                 }
                 service.port = item.spec.ports[0].port
@@ -84,23 +84,23 @@ app.post('/api/server/', async (req, res) => {
         },
     }
 
-    const serviceName = "minecraft-service-" + generateRandomString()
+    const serviceName = 'minecraft-service-' + generateRandomString()
     const serviceDefinition = {
-        kind: "Service",
-        apiVersion: "v1",
+        kind: 'Service',
+        apiVersion: 'v1',
         metadata: {
             name: serviceName,
         },
         spec: {
             selector: {
-                app: "game-server",
+                app: 'game-server',
             },
             ports: [{
-                protocol: "TCP",
+                protocol: 'TCP',
                 port: 25565,
                 targetPort: 25565,
             }],
-            type: "LoadBalancer"
+            type: 'LoadBalancer'
         }
     }
 
@@ -109,7 +109,7 @@ app.post('/api/server/', async (req, res) => {
         await k8sAppsApi.createNamespacedDeployment('default', deploymentDefinition)
         const service = await getService(serviceName)
         res.status(201).json({ 
-                    "name": service.body.metadata.name,
+                    'name': service.body.metadata.name,
                     'ip': service.body.status.loadBalancer.ingress[0].hostname,
                     'port': service.body.spec.ports[0].port
                 })
