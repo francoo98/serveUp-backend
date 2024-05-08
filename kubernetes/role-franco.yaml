@@ -4,6 +4,6 @@ metadata:
   namespace: user-franco
   name: service-role-franco
 rules:
-- apiGroups: [""]
-  resources: ["services"]
+- apiGroups: ["", "apps"]
+  resources: ["services", "deployments"]
   verbs: ["get", "watch", "list", "create"]
