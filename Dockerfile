@@ -1,4 +1,3 @@
-#FROM ubuntu:latest
 FROM node:current
 
 WORKDIR /app
