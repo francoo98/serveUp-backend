@@ -51,11 +51,16 @@ app.get('/api/server/', (req, res) => {
 })
 
 app.post('/api/server/', async (req, res) => {
+
+    if(req.cookies.user === undefined || !users.includes(req.cookies.user)) {
+        res.status(401).send()
+    }
+
     const deploymentDefinition = {
         apiVersion: 'apps/v1',
         kind: 'Deployment',
         metadata: {
-            name: 'minecraft-deployment-' + generateRandomString()
+            name: 'minecraft-deployment-' + generateRandomString(),
         },
         spec: {
             replicas: 1,
@@ -105,9 +110,10 @@ app.post('/api/server/', async (req, res) => {
     }
 
     try {
-        await k8sApi.createNamespacedService('default', serviceDefinition)
-        await k8sAppsApi.createNamespacedDeployment('default', deploymentDefinition)
+        await k8sApi.createNamespacedService('user-'+req.cookies.user, serviceDefinition)
+        await k8sAppsApi.createNamespacedDeployment('user-'+req.cookies.user, deploymentDefinition)
         const service = await getService(serviceName)
+        console.log(service)
         res.status(201).json({ 
                     'name': service.body.metadata.name,
                     'ip': service.body.status.loadBalancer.ingress[0].hostname,
@@ -129,7 +135,7 @@ async function getService(serviceName, recursionCount = 0) {
     // So we need to retry until we get the ingress
     recursionCount++
     try {
-        const service = await k8sApi.readNamespacedService(serviceName, 'default')
+        const service = await k8sApi.readNamespacedService(serviceName, 'user-'+req.cookies.user)
         service.body.status.loadBalancer.ingress[0]
         return service
     }
