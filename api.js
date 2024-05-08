@@ -113,7 +113,7 @@ app.post('/api/server/', async (req, res) => {
     try {
         await k8sApi.createNamespacedService('user-'+req.cookies.user, serviceDefinition)
         await k8sAppsApi.createNamespacedDeployment('user-'+req.cookies.user, deploymentDefinition)
-        const service = await getService(serviceName)
+        const service = await getService(serviceName, 'user-'+req.cookies.user)
         console.log(service)
         res.status(201).json({ 
                     'name': service.body.metadata.name,
@@ -131,18 +131,18 @@ app.listen(port, () => {
     console.log(`App listening on port ${port}`)
 })
 
-async function getService(serviceName, recursionCount = 0) {
+async function getService(serviceName, namespace, recursionCount = 0) {
     // This function is needed because ingress is not initialize everytime you get the service
     // So we need to retry until we get the ingress
     recursionCount++
     try {
-        const service = await k8sApi.readNamespacedService(serviceName, 'user-'+req.cookies.user)
+        const service = await k8sApi.readNamespacedService(serviceName, namespace)
         service.body.status.loadBalancer.ingress[0]
         return service
     }
     catch {
         if(recursionCount < 50) {
-            return getService(serviceName, recursionCount)
+            return getService(serviceName, namespace, recursionCount)
         }
         else {
             return -1
