@@ -127,6 +127,25 @@ app.post('/api/server/', async (req, res) => {
     }
 })
 
+app.delete('/api/server/:id', async (req, res) => {
+
+
+    const userNamespace = 'user-' + req.cookies.user
+    const serviceName = 'minecraft-service-' + req.params.id
+    const deploymentName = 'minecraft-deployment-' + req.params.id
+
+    try {
+        await k8sAppsApi.deleteNamespacedDeployment(deploymentName, userNamespace)
+        await k8sApi.deleteNamespacedService(serviceName, userNamespace)
+    }
+    catch(error) {
+        console.error(error)
+        res.status(500).json({ error: error.toString() })
+    }
+    res.status(204).send()
+})
+
+
 app.listen(port, () => {
     console.log(`App listening on port ${port}`)
 })
