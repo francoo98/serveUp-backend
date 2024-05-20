@@ -11,11 +11,11 @@ kc.loadFromDefault()
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api)
 const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
 
-const allowedOrigins = {
+const corsConfiguration = {
     origin: 'http://localhost:3000',
     credentials: true
 }
-app.use(cors(allowedOrigins))
+app.use(cors(corsConfiguration))
 
 app.use(cookieParser('nose'))
 
