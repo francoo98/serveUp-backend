@@ -33,7 +33,7 @@ app.get('/api/server/', (req, res) => {
             let services = []
             resK8s.body.items.forEach((item, i) => {
                 let service = {}
-                service.name = item.metadata.name
+                service.id = item.metadata.name.slice(-4)
                 if(item.spec.type === 'ClusterIP') {
                     service.ip = item.spec.clusterIP
                 }
@@ -57,11 +57,12 @@ app.post('/api/server/', async (req, res) => {
         res.status(401).send()
     }
 
+    const serverId = generateRandomString()
     const deploymentDefinition = {
         apiVersion: 'apps/v1',
         kind: 'Deployment',
         metadata: {
-            name: 'minecraft-deployment-' + generateRandomString(),
+            name: 'minecraft-deployment-' + serverId,
         },
         spec: {
             replicas: 1,
@@ -90,7 +91,7 @@ app.post('/api/server/', async (req, res) => {
         },
     }
 
-    const serviceName = 'minecraft-service-' + generateRandomString()
+    const serviceName = 'minecraft-service-' + serverId
     const serviceDefinition = {
         kind: 'Service',
         apiVersion: 'v1',
@@ -116,7 +117,7 @@ app.post('/api/server/', async (req, res) => {
         const service = await getService(serviceName, 'user-'+req.cookies.user)
         console.log(service)
         res.status(201).json({ 
-                    'name': service.body.metadata.name,
+                    'id': serverId,
                     'ip': service.body.status.loadBalancer.ingress[0].hostname,
                     'port': service.body.spec.ports[0].port
                 })
