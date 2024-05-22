@@ -1,7 +1,7 @@
 FROM eclipse-temurin:21
 
 RUN adduser minecraft
-RUN su - minecraft
+USER minecraft
 WORKDIR /home/minecraft
 RUN wget https://api.papermc.io/v2/projects/paper/versions/1.8.8/builds/445/downloads/paper-1.8.8-445.jar
 RUN echo "eula=true" > eula.txt
