@@ -1,8 +1,7 @@
-FROM alpine:latest
+FROM debian:bookworm
 
-EXPOSE 26000
+EXPOSE 26000/udp
 
-COPY "./server.cfg" "~/.xonotic/data"
+COPY "./server.cfg" "/root/.xonotic/data/"
 
-CMD [ "/home/root/xonotic/server_linux.sh" ]
-#CMD [ "ls", "-l", "/home/root/xonotic" ]
+CMD [ "/root/xonotic/server_linux.sh" ]
