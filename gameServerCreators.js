@@ -153,7 +153,7 @@ async function createXonoticServer (user) {
   await k8sApi.createNamespacedService('user-' + user, serviceDefinition)
   await k8sApi.createNamespacedPersistentVolumeClaim('user-' + user, volumeClaim)
   await k8sAppsApi.createNamespacedDeployment('user-' + user, deploymentDefinition)
-  const service = await getService('gameserver-service-' + serverId, 'user-' + user)
+  const service = await k8sApi.readNamespacedService('gameserver-service-' + serverId, 'user-' + user)
   return {
     id: serverId,
     ip: service.body.status.loadBalancer.ingress[0].hostname,
