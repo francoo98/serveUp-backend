@@ -62,7 +62,7 @@ async function createMinecraftServer (user) {
   await k8sApi.createNamespacedService('user-' + user, serviceDefinition)
   await k8sAppsApi.createNamespacedDeployment('user-' + user, deploymentDefinition)
   await sleep(1000) // need to wait for the service ingress to be created
-  const service = await getService('gameserver-service-' + serverId, 'user-' + user)
+  const service = await k8sApi.readNamespacedService('gameserver-service-' + serverId, 'user-' + user)
   return {
     id: serverId,
     ip: service.body.status.loadBalancer.ingress[0].hostname,
@@ -158,24 +158,6 @@ async function createXonoticServer (user) {
     id: serverId,
     ip: service.body.status.loadBalancer.ingress[0].hostname,
     port: service.body.spec.ports[0].port
-  }
-}
-
-async function getService (serviceName, namespace, recursionCount = 0) {
-  // This function is needed because ingress is not initialize everytime you get the service
-  // So we need to retry until we get the ingress
-  recursionCount++
-  const service = await k8sApi.readNamespacedService(serviceName, namespace)
-  const exists = service.body.status.loadBalancer.ingress.length !== 0
-  console.log(JSON.stringify(service.body, null, 2))
-  if (exists) {
-    return service
-  } else {
-    if (recursionCount < 50) {
-      return getService(serviceName, namespace, recursionCount)
-    } else {
-      return -1
-    }
   }
 }
 
