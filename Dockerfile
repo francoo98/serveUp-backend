@@ -3,6 +3,7 @@ FROM node:current
 WORKDIR /app
 
 COPY api.js ./
+COPY gameServerCreators.js ./
 COPY package.json ./
 
 RUN npm install
