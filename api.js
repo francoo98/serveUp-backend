@@ -3,6 +3,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 
 const serversApi = require('./servers-api')
+const usersApi = require('./users-api')
 
 const app = express()
 const port = 3000
@@ -15,6 +16,7 @@ app.use(cors(corsConfiguration))
 
 app.use(cookieParser('nose'))
 
+app.use('/api/user', usersApi)
 app.use('/api/server', serversApi)
 
 app.listen(port, () => {
