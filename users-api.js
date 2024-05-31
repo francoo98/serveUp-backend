@@ -4,7 +4,7 @@ const router = express.Router()
 
 router.use(express.json())
 
-let users = [
+const users = [
   {
     id: 1,
     username: 'franco',
