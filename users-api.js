@@ -23,7 +23,9 @@ router.post('/login', (req, res) => {
   let user = users.find(user => user.username === req.body.username && user.password === req.body.password)
   if (user) {
     user.token = generateToken()
-    res.status(200).cookie('session_token', user.token).send()
+    res.status(200).cookie('sessionToken', user.token).send()
+  } else {
+    res.status(401).send()
   }
 })
 
