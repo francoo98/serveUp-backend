@@ -1,6 +1,6 @@
 const express = require('express')
 const k8s = require('@kubernetes/client-node')
-const gameServerCreators = require('./gameServerCreators')
+const gameServerCreators = require('./gameservers-creators')
 const [, findUser] = require('./users-api')
 
 const router = express.Router()
