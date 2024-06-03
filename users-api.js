@@ -19,6 +19,11 @@ const users = [
   }
 ]
 
+function findUser (token) {
+  if (!token) return undefined
+  return users.find(user => user.token === token)
+}
+
 router.post('/login', (req, res) => {
   let user = users.find(user => user.username === req.body.username && user.password === req.body.password)
   if (user) {
@@ -43,4 +48,4 @@ function generateToken () {
   return crypto.randomBytes(6).toString('hex')
 }
 
-module.exports = router
+module.exports = [router, findUser]

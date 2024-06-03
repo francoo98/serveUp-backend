@@ -1,6 +1,7 @@
 const express = require('express')
 const k8s = require('@kubernetes/client-node')
 const gameServerCreators = require('./gameServerCreators')
+const [, findUser] = require('./users-api')
 
 const router = express.Router()
 
@@ -10,15 +11,16 @@ const k8sApi = kc.makeApiClient(k8s.CoreV1Api)
 const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
 
 const supportedGames = ['minecraft', 'xonotic']
-const users = ['franco', 'tomi']
 
 router.get('', (req, res) => {
-  if (!req.cookies.user || !users.includes(req.cookies.user)) {
+  const user = findUser(req.cookies.sessionToken)
+
+  if (!user) {
     res.status(401).send()
     return
   }
 
-  k8sApi.listNamespacedService('user-' + req.cookies.user)
+  k8sApi.listNamespacedService('user-' + user.username)
     .then((resK8s) => {
       const services = []
       resK8s.body.items.forEach((item, i) => {
@@ -45,7 +47,9 @@ router.post('/:game', async (req, res) => {
     res.status(404).send()
   }
 
-  if (req.cookies.user === undefined || !users.includes(req.cookies.user)) {
+  const user = findUser(req.cookies.sessionToken)
+
+  if (!user) {
     res.status(401).send()
   }
 
@@ -53,10 +57,10 @@ router.post('/:game', async (req, res) => {
   try {
     switch (req.params.game) {
       case 'minecraft':
-        server = await gameServerCreators.createMinecraftServer(req.cookies.user)
+        server = await gameServerCreators.createMinecraftServer(user.username)
         break
       case 'xonotic':
-        server = await gameServerCreators.createXonoticServer(req.cookies.user)
+        server = await gameServerCreators.createXonoticServer(user.username)
         break
       default:
         return res.status(404).send()
@@ -70,7 +74,13 @@ router.post('/:game', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  const userNamespace = 'user-' + req.cookies.user
+  const user = findUser(req.cookies.sessionToken)
+
+  if (!user) {
+    res.status(401).send()
+  }
+
+  const userNamespace = 'user-' + user.username
   const serviceName = 'gameserver-service-' + req.params.id
   const deploymentName = 'gameserver-deployment-' + req.params.id
 
