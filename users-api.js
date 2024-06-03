@@ -30,7 +30,13 @@ router.post('/login', (req, res) => {
 })
 
 router.post('/logout', (req, res) => {
-  res.send('About birds')
+  let user = users.find(user => user.token === req.cookies.sessionToken)
+  if (user) {
+    user.token = null
+    res.status(200).send()
+  } else {
+    res.status(401).send()
+  }
 })
 
 function generateToken () {
