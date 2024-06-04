@@ -38,7 +38,7 @@ router.post('/logout', (req, res) => {
   let user = users.find(user => user.token === req.cookies.sessionToken)
   if (user) {
     user.token = null
-    res.status(200).send()
+    res.status(200).clearCookie('sessionToken').send()
   } else {
     res.status(401).send()
   }
