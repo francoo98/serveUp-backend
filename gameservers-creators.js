@@ -97,24 +97,10 @@ async function createXonoticServer (user) {
             {
               name: 'xonotic',
               image: 'xonotic',
-              imagePullPolicy: 'Never',
-              volumeMounts: [
-                {
-                  name: 'xonotic-volume',
-                  mountPath: '/root/xonotic/'
-                }
-              ]
+              imagePullPolicy: 'Never'
             }
           ]
-        },
-        volumes: [
-          {
-            name: 'xonotic-volume',
-            persistentVolumeClaim: {
-              claimName: 'xonotic-volume-' + serverId
-            }
-          }
-        ]
+        }
       }
     }
   }
@@ -138,21 +124,73 @@ async function createXonoticServer (user) {
     }
   }
 
-  const volumeClaim = {
-    apiVersion: 'v1',
-    kind: 'PersistentVolumeClaim',
+  await k8sApi.createNamespacedService('user-' + user, serviceDefinition)
+  await k8sAppsApi.createNamespacedDeployment('user-' + user, deploymentDefinition)
+  const service = await k8sApi.readNamespacedService('gameserver-service-' + serverId, 'user-' + user)
+  return {
+    id: serverId,
+    ip: service.body.status.loadBalancer.ingress[0].hostname,
+    port: service.body.spec.ports[0].port
+  }
+}
+
+async function createTerrariaServer (user) {
+  const serverId = generateServerId()
+
+  const deploymentDefinition = {
+    apiVersion: 'apps/v1',
+    kind: 'Deployment',
     metadata: {
-      name: 'xonotic-volume-' + serverId
+      name: 'gameserver-deployment-' + serverId
     },
     spec: {
-      accessModes: 'ReadMany',
-      volumeName: 'xonotic'
+      replicas: 1,
+      selector: {
+        matchLabels: {
+          gameserver: 'gameserver-' + serverId
+        }
+      },
+      template: {
+        metadata: {
+          labels: {
+            gameserver: 'gameserver-' + serverId
+          }
+        },
+        spec: {
+          containers: [
+            {
+              name: 'terraria',
+              image: 'terraria',
+              imagePullPolicy: 'Never'
+            }
+          ]
+        }
+      }
+    }
+  }
+
+  const serviceDefinition = {
+    kind: 'Service',
+    apiVersion: 'v1',
+    metadata: {
+      name: 'gameserver-service-' + serverId
+    },
+    spec: {
+      selector: {
+        gameserver: 'gameserver-' + serverId
+      },
+      ports: [{
+        protocol: 'TCP',
+        port: 7777,
+        targetPort: 7777
+      }],
+      type: 'LoadBalancer'
     }
   }
 
   await k8sApi.createNamespacedService('user-' + user, serviceDefinition)
-  await k8sApi.createNamespacedPersistentVolumeClaim('user-' + user, volumeClaim)
   await k8sAppsApi.createNamespacedDeployment('user-' + user, deploymentDefinition)
+  sleep(1000) // need to wait for the service ingress to be created
   const service = await k8sApi.readNamespacedService('gameserver-service-' + serverId, 'user-' + user)
   return {
     id: serverId,
@@ -169,4 +207,4 @@ function sleep (milliseconds) {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
-module.exports = { createXonoticServer, createMinecraftServer }
+module.exports = { createXonoticServer, createMinecraftServer, createTerrariaServer }

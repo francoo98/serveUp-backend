@@ -10,7 +10,7 @@ kc.loadFromDefault()
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api)
 const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api)
 
-const supportedGames = ['minecraft', 'xonotic']
+const supportedGames = ['minecraft', 'xonotic', 'terraria']
 
 router.get('', (req, res) => {
   const user = findUser(req.cookies.sessionToken)
@@ -61,6 +61,9 @@ router.post('/:game', async (req, res) => {
         break
       case 'xonotic':
         server = await gameServerCreators.createXonoticServer(user.username)
+        break
+      case 'terraria':
+        server = await gameServerCreators.createTerrariaServer(user.username)
         break
       default:
         return res.status(404).send()

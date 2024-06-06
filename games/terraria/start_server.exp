@@ -1,0 +1,39 @@
+#!/usr/bin/expect
+
+spawn /root/server/TerrariaServer
+
+expect "Choose World:"
+send "n\r"
+
+expect "Choose size:"
+send "1\r"
+
+expect "Choose difficulty:"
+send "1\r"
+
+expect "Choose world evil:"
+send "1\r"
+
+expect "Enter world name:"
+send "ServeUp terraria server\r"
+
+expect "Enter Seed (Leave Blank For Random):"
+send "\r"
+
+expect "Choose World:"
+send "1\r"
+
+expect "Max players (press enter for 16):"
+send "4\r"
+
+expect "Server port (press enter for 7777):"
+send "\r"
+
+expect "Automatically forward port? (y/n):"
+send "n\r"
+
+expect "Server password (press enter for none):"
+send "\r"
+
+expect ": Server started"
+wait
