@@ -97,7 +97,19 @@ async function createXonoticServer (user) {
             {
               name: 'xonotic',
               image: 'xonotic',
-              imagePullPolicy: 'Never'
+              imagePullPolicy: 'Never',
+              volumeMounts: [
+                {
+                  name: 'config',
+                  mountPath: '/root/.xonotic'
+                }
+              ]
+            }
+          ],
+          volumes: [
+            {
+              name: 'config',
+              emptyDir: {}
             }
           ]
         }
@@ -126,6 +138,12 @@ async function createXonoticServer (user) {
 
   await k8sApi.createNamespacedService('user-' + user, serviceDefinition)
   await k8sAppsApi.createNamespacedDeployment('user-' + user, deploymentDefinition)
+  // This is needed to workaround a bug in the Xonotic server
+  // The server needs to create the keys and then be restarted
+  // to be able to read them. It doesn't read them in the first start.
+  // So I restart the deployment.
+  await restartDeployment('user-' + user, 'gameserver-deployment-' + serverId)
+  sleep(1000) // need to wait for the service ingress to be created
   const service = await k8sApi.readNamespacedService('gameserver-service-' + serverId, 'user-' + user)
   return {
     id: serverId,
@@ -205,6 +223,20 @@ function generateServerId () {
 
 function sleep (milliseconds) {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+
+async function restartDeployment(namespace, deploymentName) {
+  try {
+    const deployment = await k8sAppsApi.readNamespacedDeployment(deploymentName, namespace)
+    const annotations = deployment.body.spec.template.metadata.annotations || {}
+    annotations['kubectl.kubernetes.io/restartedAt'] = new Date().toISOString()
+    deployment.body.spec.template.metadata.annotations = annotations
+
+    await k8sAppsApi.replaceNamespacedDeployment(deploymentName, namespace, deployment.body)
+    console.log(`Deployment ${deploymentName} restarted`)
+  } catch (error) {
+    console.error(`Error restarting Deployment ${deploymentName}:`, error)
+  }
 }
 
 module.exports = { createXonoticServer, createMinecraftServer, createTerrariaServer }
