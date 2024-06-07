@@ -138,10 +138,8 @@ async function createXonoticServer (user) {
 
   await k8sApi.createNamespacedService('user-' + user, serviceDefinition)
   await k8sAppsApi.createNamespacedDeployment('user-' + user, deploymentDefinition)
-  // This is needed to workaround a bug in the Xonotic server
-  // The server needs to create the keys and then be restarted
-  // to be able to read them. It doesn't read them in the first start.
-  // So I restart the deployment.
+  // For some reason, the container with the server needs to be restarted to be able to work.
+  // Restarting the deployment restarts the container.
   await restartDeployment('user-' + user, 'gameserver-deployment-' + serverId)
   sleep(1000) // need to wait for the service ingress to be created
   const service = await k8sApi.readNamespacedService('gameserver-service-' + serverId, 'user-' + user)
