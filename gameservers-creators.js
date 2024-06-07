@@ -223,7 +223,7 @@ function sleep (milliseconds) {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
-async function restartDeployment(namespace, deploymentName) {
+async function restartDeployment (namespace, deploymentName) {
   try {
     const deployment = await k8sAppsApi.readNamespacedDeployment(deploymentName, namespace)
     const annotations = deployment.body.spec.template.metadata.annotations || {}
